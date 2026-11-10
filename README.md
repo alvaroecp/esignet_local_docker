@@ -72,7 +72,9 @@ For example, the previous command listed the four images and the four host ports
 
 3. Start it. `-p esignet` names the Compose project: repeat it in every later Compose command.
 
+```bash
 docker compose -p esignet up -d
+```
 
 4. Check that it is up. `ps` should list four services, with the database `healthy`:
 
@@ -180,7 +182,7 @@ Some behaviors observed in the tests are listed below. The tests were not exhaus
 
 ## Key pair of a client
 
-A client authenticates with `private_key_jwt`: the RP signs a JWT with its private key, and eSignet checks it with the public key registered for that client. 
+A client authenticates with `private_key_jwt`: the RP signs a JWT with its private key, and eSignet checks it with the public key registered for that client.
 
 The commands below create an RSA 2048 key pair in a PEM file (`client-private.pem`) and, from it, write two JWK files: `client-public.jwk`, the only one that goes into the registration, and `client-private.jwk`, for the RP. They need `openssl` and `python3`. The format is the one used in the tests; other key types or sizes were not tried.
 
@@ -325,7 +327,7 @@ In the tests it answered `HTTP 200` even when it failed, so it is better to chec
 {"responseTime":"2026-11-08T19:10:42.780Z","response":{"status":"mock identity data created successfully"},"errors":[]}
 ```
 
-The example follows the body of the Postman collection, with test values. The `individualId` is made up, with 10 digits as the login screen asks, and the photo is a 2×2-pixel PNG from the Postman example. Run as written, it returned the answer above. 
+The example follows the body of the Postman collection, with test values. The `individualId` is made up, with 10 digits as the login screen asks, and the photo is a 2×2-pixel PNG from the Postman example. Run as written, it returned the answer above.
 
 <details>
 <summary>Example with curl (bash)</summary>
@@ -370,7 +372,6 @@ Notes:
 - `middleName` can apparently be omitted, as the example does: it was accepted without it.
 - The postal code seems to be required: when it was missing or not valid, the server answered `invalid_postalcode`.
 - eSignet's login screen rejected an 8-digit UIN with the message "UIN/VID must be between 10 and 16 digits".
-- To sign in, the UIN and the OTP `111111` were used. In the tests that OTP worked each time it was tried; the mock identity system apparently issues that fixed value. The screen also offers "Login with Password", which was not tried. A person created with the first version of the example (the original Postman data) was also used to sign in through the Flutter desktop app.
 - The photo was reduced to 256 px on its longest side, presumably to keep small the `userinfo`, which is a JWT and carries it. Other sizes were not tried.
 - The data is probably stored in plain text in the demo database (not verified): do not use real personal data.
 - With `scope` `openid profile email`, the profile showed `name`, `email` and `picture`, but not the phone number or the address.
