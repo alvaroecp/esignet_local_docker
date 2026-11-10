@@ -102,7 +102,7 @@ What was followed, what was adjusted and how long it took.
 
 ## Daily operation
 
-The official configuration seems designed to be recreated every time (`down` and `up`), not stopped and started (see the warning above). In the tests, the PC was switched off and on. The services came back after a few adjustments, described below, and the containers kept their data.
+In the tests, the PC was switched off and on. The services came back after a few adjustments, described below, and the containers kept their data.
 
 After restarting the PC, start Docker if it is not running (for example, `sudo service docker start`). Then start the services one by one, in this order (the one that worked in the tests), waiting for each one to be up before starting the next:
 
