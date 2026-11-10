@@ -86,7 +86,7 @@ docker compose -p esignet ps
 
 ## Deployment notes
 
-What was followed, what was adjusted and how long it took. These notes are written from memory, and no time was recorded.
+What was followed, what was adjusted and how long it took.
 
 | Question | What happened |
 | --- | --- |
