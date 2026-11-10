@@ -102,14 +102,7 @@ What was followed, what was adjusted and how long it took.
 
 ## Daily operation
 
-The official configuration seems designed to be recreated every time (`down` and `up`), not stopped and started (see the warning above). In the tests, after switching the PC off and on, the services came back after a few adjustments, described below, and the containers kept their data. Stopping them with `stop` was not tried separately.
-
-To stop everything without removing anything:
-
-```bash
-cd ~/esignet/docker-compose
-docker compose -p esignet stop
-```
+The official configuration seems designed to be recreated every time (`down` and `up`), not stopped and started (see the warning above). In the tests, the PC was switched off and on. The services came back after a few adjustments, described below, and the containers kept their data.
 
 After restarting the PC, start Docker if it is not running (for example, `sudo service docker start`). Then start the services one by one, in this order (the one that worked in the tests), waiting for each one to be up before starting the next:
 
@@ -124,7 +117,7 @@ docker compose -p esignet ps
 
 The login interface is recreated instead of started because, in the tests, it started and stopped again by itself; the cause was not confirmed. It keeps no data, so recreating it seemed harmless.
 
-Problems seen in the tests:
+A problem seenn in the tests:
 
 **The mock identity system failed from its third start**, with `mv: cannot overwrite 'hsm-client/client'` in its log (`docker logs esignet-mock-identity-system-1`). Its start script seems to reinstall the HSM client on every start. What worked was to change one line of that script inside the stopped container, so that the installation runs only if the `hsm-client` folder does not exist yet. It was tried with the image `mosipid/mock-identity-system:0.14.0`; `diff` should show a single changed line:
 
@@ -136,15 +129,7 @@ diff configure_start.sh.original configure_start.sh
 docker cp configure_start.sh esignet-mock-identity-system-1:/home/mosip/configure_start.sh
 ```
 
-The change apparently lives only in that container, so it would probably be lost if the container is recreated.
-
-**eSignet may not get its certificates** if it was already running when the mock identity system was restarted. If the login fails after that, restarting it may help:
-
-```bash
-docker restart esignet-esignet-1
-```
-
-**The clocks of WSL and Windows may drift apart.** The RP of the tests was set to tolerate about 60 seconds of difference, so a larger drift may make it reject tokens (this was not observed). If that happens, `sudo hwclock -s` may fix it, or `wsl --shutdown` from Windows and reopening WSL.
+The change is made inside the container, so it would be lost if the container were recreated.
 
 ## API
 
