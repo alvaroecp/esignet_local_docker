@@ -70,11 +70,9 @@ For example, the previous command listed the four images and the four host ports
         published: "8082"
 ```
 
-3. Start it:
+3. Start it. `-p esignet` names the Compose project: repeat it in every later Compose command.
 
-```bash
 docker compose -p esignet up -d
-```
 
 4. Check that it is up. `ps` should list four services, with the database `healthy`:
 
@@ -175,7 +173,7 @@ Some behaviors observed in the tests are listed below. The tests were not exhaus
 | Token lifetime | About 120 seconds in the tests; no refresh token was seen |
 | `id_token` | Signed with PS256. In the tests it carried `acr`, `auth_time`, `nonce`, `sub` and `jti`, and no `at_hash` |
 | `access_token` | In the tests, a JWT signed with PS256 with the same key as the `id_token`, with header `typ: at+jwt` |
-| `userinfo` | In the tests it was a signed JWT, but signed with RS256 using the mock identity system's key, which the JWKS publishes as PS256. Its `iss` is `http://localhost:8088/v1/esignet`, not the issuer. This is probably a quirk of the mock identity system, not of eSignet; it was not verified |
+| `userinfo` | In the tests it was a signed JWT, but signed with RS256 using the mock identity system's key, which the JWKS publishes as PS256. Its `iss` is `http://localhost:8088/v1/esignet`, not the issuer (port 8088 is used inside the eSignet container and is not published to the host). This is probably a quirk of the mock identity system, not of eSignet; it was not verified |
 | `sub` | The same value came back on every login of the same person with the same client. The discovery document says `pairwise`; whether it differs between clients was not compared |
 | `picture` | In the tests it arrived as an inline image (`data:image/jpeg;base64,…`), not as a URL |
 | Registered clients | No way to delete them was found |
@@ -294,12 +292,13 @@ curl -s -X POST http://localhost:8080/client-mgmt/client \
 EOF
 ```
 
-Running it leaves a client registered, and apparently it cannot be deleted: the `clientId` of the example makes clear that it is only an example.
+Running it leaves a client registered, and apparently it cannot be deleted (see the notes below).
 
 </details>
 
 Notes:
 
+- To use it with the RP linked in the Overview, change `redirectUris` to `["http://localhost:3005/callback"]` and `clientId` to the value you will use as `CLIENT_ID` in the RP's configuration.
 - Only the public key was sent. Its `kid` appears to be the one the RP has to put in the header of its client assertion: without a `kid`, eSignet answered `401 invalid_client`.
 - When a private key was lost, the client became unusable and no way to recover it was found. The way out was to register another client with a different name.
 - The Postman collection also has operations to read (`GET`), replace (`PUT`) and modify (`PATCH`) a client by its `client_id`. They were not tried. Apparently there is no way to delete or list clients: no such operation appears in the collection, and none was found in the tests.
@@ -326,7 +325,7 @@ In the tests it answered `HTTP 200` even when it failed, so it is better to chec
 {"responseTime":"2026-11-08T19:10:42.780Z","response":{"status":"mock identity data created successfully"},"errors":[]}
 ```
 
-The example follows the body of the Postman collection, with the name, address, phone, postal code and time zone. The `individualId` is made up, with 10 digits as the login screen asks, and the photo is a 2×2-pixel PNG taken from the Postman example. Run as written, it returned the answer above. A first version, with the original sample data of the Postman example, was accepted as well.
+The example follows the body of the Postman collection, with test values. The `individualId` is made up, with 10 digits as the login screen asks, and the photo is a 2×2-pixel PNG from the Postman example. Run as written, it returned the answer above. 
 
 <details>
 <summary>Example with curl (bash)</summary>
