@@ -117,7 +117,7 @@ docker compose -p esignet ps
 
 The login interface is recreated instead of started because, in the tests, it started and stopped again by itself; the cause was not confirmed. It keeps no data, so recreating it seemed harmless.
 
-A problem seenn in the tests:
+A problem seen in the tests:
 
 **The mock identity system failed from its third start**, with `mv: cannot overwrite 'hsm-client/client'` in its log (`docker logs esignet-mock-identity-system-1`). Its start script seems to reinstall the HSM client on every start. What worked was to change one line of that script inside the stopped container, so that the installation runs only if the `hsm-client` folder does not exist yet. It was tried with the image `mosipid/mock-identity-system:0.14.0`; `diff` should show a single changed line:
 
@@ -133,9 +133,7 @@ The change is made inside the container, so it would be lost if the container we
 
 ## API
 
-eSignet publishes its metadata at `http://localhost:8080/.well-known/openid-configuration`. The endpoints table and the one after it come from that document, queried on 2026-11-08. The last table is what was observed while testing against this installation.
-
-Endpoints:
+eSignet publishes its metadata at `http://localhost:8080/.well-known/openid-configuration`. In this installation, it lists these endpoints:
 
 | Purpose | URL |
 | --- | --- |
@@ -167,7 +165,7 @@ What the discovery document announces:
 | DPoP | PS256, ES256, ES256K and EdDSA |
 | Sign-out | No `end_session_endpoint` appears in the document, so a global sign-out is apparently not offered |
 
-What was observed in the tests that were run. They were not exhaustive: this describes what happened in the cases executed, not a guarantee of how eSignet behaves. Where it differs from what is announced or documented, the cause may be this installation or a misreading of the behavior, so check it before relying on it:
+Some behaviors observed in the tests are listed below. The tests were not exhaustive, so some observations may be inaccurate:
 
 | Topic | Observation |
 | --- | --- |
