@@ -182,7 +182,7 @@ Some behaviors observed in the tests are listed below. The tests were not exhaus
 
 ## Key pair of a client
 
-A client authenticates with `private_key_jwt`: the RP signs a JWT with its private key, and eSignet checks it with the public key registered for that client. The pair therefore has to exist before the client is registered, and the private key stays with the RP.
+A client authenticates with `private_key_jwt`: the RP signs a JWT with its private key, and eSignet checks it with the public key registered for that client. 
 
 The commands below create an RSA 2048 key pair in a PEM file (`client-private.pem`) and, from it, write two JWK files: `client-public.jwk`, the only one that goes into the registration, and `client-private.jwk`, for the RP. They need `openssl` and `python3`. The format is the one used in the tests; other key types or sizes were not tried.
 
@@ -326,7 +326,7 @@ In the tests it answered `HTTP 200` even when it failed, so it is better to chec
 {"responseTime":"2026-11-08T19:10:42.780Z","response":{"status":"mock identity data created successfully"},"errors":[]}
 ```
 
-The example follows the body of the Postman collection, with the name, address, phone, postal code and time zone adapted to Peru. The `individualId` is made up, with 10 digits as the login screen asks, and the photo is a 2×2-pixel PNG taken from the Postman example. Run as written, it returned the answer above. A first version, with the original sample data of the Postman example, was accepted as well.
+The example follows the body of the Postman collection, with the name, address, phone, postal code and time zone. The `individualId` is made up, with 10 digits as the login screen asks, and the photo is a 2×2-pixel PNG taken from the Postman example. Run as written, it returned the answer above. A first version, with the original sample data of the Postman example, was accepted as well.
 
 <details>
 <summary>Example with curl (bash)</summary>
