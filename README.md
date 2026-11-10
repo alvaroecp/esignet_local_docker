@@ -17,10 +17,8 @@ Components, as they run in Docker:
 | --- | --- | --- | --- | --- |
 | Login interface | `esignet-esignet-ui-1` | `mosipid/oidc-ui:2.0.0` | 3000 | The web page where the user authenticates |
 | eSignet service | `esignet-esignet-1` | `mosipid/esignet:2.0.0` | 8080 | The OpenID Connect server (the issuer) |
-| Mock identity system | `esignet-mock-identity-system-1` | `mosipid/mock-identity-system:0.14.0` | 8082 | A mock identity registry, with demo people |
+| Mock identity system | `esignet-mock-identity-system-1` | `mosipid/mock-identity-system:0.14.0` | 8082 | A mock identity registry, with records of demo people |
 | Database | `esignet-database-1` | `postgres:bookworm` | 5455 | PostgreSQL (port 5432 inside the container) |
-
-The eSignet container also listens on port 8088, which is not published to the host.
 
 Environment where it was tested:
 
@@ -32,8 +30,6 @@ Environment where it was tested:
 | Docker | 29.1.3, the engine inside WSL (from Ubuntu's packages), not Docker Desktop |
 | Docker Compose | 2.40.3 |
 | Memory | 15 GiB assigned to WSL; about 2.5 GiB in use with the four containers running (that figure covers all of WSL, not only these containers) |
-
-The mock identity system holds demo people only: do not load real personal data into it.
 
 **Status.** In the tests it worked and was used with one RP (a backend and a frontend). The tests were limited and not exhaustive, and everything here comes from a single machine: please read it as observations, not as guarantees.
 
@@ -55,13 +51,26 @@ git clone --depth 1 https://github.com/mosip/esignet.git
 cd esignet/docker-compose
 ```
 
-2. Optionally, preview the ports and images. It should show ports 5455, 8082, 8080 and 3000, and the four images:
+2. Optionally, preview the ports and images before starting anything:
 
 ```bash
 docker compose -p esignet config | grep -E "published|image:"
 ```
 
-3. Start it. `-p esignet` names the Compose project: repeat it in every later Compose command.
+For example, the previous command listed the four images and the four host ports that Compose would use, each port right after its image:
+
+```
+    image: postgres:bookworm
+        published: "5455"
+    image: mosipid/esignet:2.0.0
+        published: "8080"
+    image: mosipid/oidc-ui:2.0.0
+        published: "3000"
+    image: mosipid/mock-identity-system:0.14.0
+        published: "8082"
+```
+
+3. Start it:
 
 ```bash
 docker compose -p esignet up -d
@@ -72,8 +81,6 @@ docker compose -p esignet up -d
 ```bash
 docker compose -p esignet ps
 ```
-
-For a first login, the official guide includes a demo person already loaded in the mock identity system, with test credentials on its "using mock data" page.
 
 **Warning.** It is not known what would happen with `docker compose down` (or with `-v`), and it was preferred not to try it. Apparently the database and the mock identity system keep their data (registered clients, people and keys) inside their containers, so it might be lost; for that reason, `down` is best avoided. The official configuration seems designed to be recreated every time, not to be stopped and started.
 
