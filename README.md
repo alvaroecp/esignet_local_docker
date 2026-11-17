@@ -6,10 +6,11 @@ A local installation of [eSignet](https://github.com/mosip/esignet) 2.0.0, the O
 
 This repository only documents how it was installed and what was observed of its API. It contains no eSignet code.
 
-Relying party tested with this setup (one RP, made of a backend and a frontend):
+Relying party tested with this setup (one RP, made of a backend and two frontends):
 
 - [rp_backend_dart_frog](https://github.com/alvaroecp/rp_backend_dart_frog) (backend)
-- [rp_frontend_windows_flutter](https://github.com/alvaroecp/rp_frontend_windows_flutter) (frontend)
+- [rp_frontend_windows_flutter](https://github.com/alvaroecp/rp_frontend_windows_flutter) (desktop frontend)
+- [rp_frontend_web_flutter](https://github.com/alvaroecp/rp_frontend_web_flutter) (web frontend)
 
 Components, as they run in Docker:
 
@@ -31,7 +32,7 @@ Environment where it was tested:
 | Docker Compose | 2.40.3 |
 | Memory | 15 GiB assigned to WSL; about 2.5 GiB in use with the four containers running (that figure covers all of WSL, not only these containers) |
 
-**Status.** In the tests it worked and was used with one RP (a backend and a frontend). The tests were limited and not exhaustive, and everything here comes from a single machine: please read it as observations, not as guarantees.
+**Status.** In the tests it worked and was used with one RP (a backend and two frontends, desktop and web). The tests were limited and not exhaustive, and everything here comes from a single machine: please read it as observations, not as guarantees.
 
 ## Installation
 
@@ -129,7 +130,7 @@ diff configure_start.sh.original configure_start.sh
 docker cp configure_start.sh esignet-mock-identity-system-1:/home/mosip/configure_start.sh
 ```
 
-The change is made inside the container, so it would be lost if the container were recreated.
+The change apparently lives only in that container, so it would probably be lost if the container is recreated.
 
 ## API
 
