@@ -6,11 +6,16 @@ A local installation of [eSignet](https://github.com/mosip/esignet) 2.0.0, the O
 
 This repository only documents how it was installed and what was observed of its API. It contains no eSignet code.
 
-Relying party tested with this setup (one RP, made of a backend and two frontends):
+Relying parties tested with this setup:
 
-- [rp_backend_dart_frog](https://github.com/alvaroecp/rp_backend_dart_frog) (backend)
-- [rp_frontend_windows_flutter](https://github.com/alvaroecp/rp_frontend_windows_flutter) (desktop frontend)
-- [rp_frontend_web_flutter](https://github.com/alvaroecp/rp_frontend_web_flutter) (web frontend)
+- An RP made of a backend and two frontends:
+  - [rp_backend_dart_frog](https://github.com/alvaroecp/rp_backend_dart_frog) (backend)
+  - [rp_frontend_windows_flutter](https://github.com/alvaroecp/rp_frontend_windows_flutter) (desktop frontend)
+  - [rp_frontend_web_flutter](https://github.com/alvaroecp/rp_frontend_web_flutter) (web frontend)
+- A minimal RP that runs only in the browser, without frontend app or session:
+  - [rp_minimal_dart_frog](https://github.com/alvaroecp/rp_minimal_dart_frog)
+
+Both use the same return address (`http://localhost:3005/callback`), so they can share a registered client, but they cannot run at the same time.
 
 Components, as they run in Docker:
 
@@ -32,7 +37,7 @@ Environment where it was tested:
 | Docker Compose | 2.40.3 |
 | Memory | 15 GiB assigned to WSL; about 2.5 GiB in use with the four containers running (that figure covers all of WSL, not only these containers) |
 
-**Status.** In the tests it worked and was used with one RP (a backend and two frontends, desktop and web). The tests were limited and not exhaustive, and everything here comes from a single machine: please read it as observations, not as guarantees.
+**Status.** In the tests it worked and was used with two RPs: one made of a backend and two frontends (desktop and web), and a minimal one that runs only in the browser. The tests were limited and not exhaustive, and everything here comes from a single machine: please read it as observations, not as guarantees.
 
 ## Installation
 
@@ -173,10 +178,12 @@ Some behaviors observed in the tests are listed below. The tests were not exhaus
 | `kid` in the assertion | Apparently required: without it, eSignet answered `401 invalid_client` ("Invalid client assertion") |
 | `aud` of the assertion | In the tests it had to be the issuer (`http://localhost:8080`); the token endpoint URL was rejected. The official guide describes the token endpoint URL as the default and the issuer as the strict mode; which mode this installation uses was not checked |
 | Algorithm of the assertion | PS256 and RS256 were both accepted, although the discovery document does not list RS256 |
+| PKCE required | With a client registered with `require_pkce: true`, a request to `/oauth2/authorize` without `code_challenge` was redirected to the `redirect_uri` with `error=invalid_request`, the description "code_challenge is required for this application", `iss` and the `state` that was sent |
 | Token lifetime | About 120 seconds in the tests; no refresh token was seen |
 | `id_token` | Signed with PS256. In the tests it carried `acr`, `auth_time`, `nonce`, `sub` and `jti`, and no `at_hash` |
 | `access_token` | In the tests, a JWT signed with PS256 with the same key as the `id_token`, with header `typ: at+jwt` |
-| `userinfo` | In the tests it was a signed JWT, but signed with RS256 using the mock identity system's key, which the JWKS publishes as PS256. Its `iss` is `http://localhost:8088/v1/esignet`, not the issuer (port 8088 is used inside the eSignet container and is not published to the host). This is probably a quirk of the mock identity system, not of eSignet; it was not verified |
+| JWKS | It publishes two RSA keys. One belongs to the OIDC service (`kid` in hexadecimal, certificate `OIDC_SERVICE_RSA_2048`) and signs the `id_token` and the `access_token`. The other belongs to the mock identity system (`kid` in base64url, certificate `MOCK_AUTHENTICATION_SERVICE`) and signs the `userinfo` |
+| `userinfo` | In the tests it was a signed JWT, but signed with RS256 using the mock identity system's key, which the JWKS publishes as PS256. Its `iss` is `http://localhost:8088/v1/esignet`, not the issuer (port 8088 is used inside the eSignet container and is not published to the host). Even so, its signature checked out with that key from the JWKS in [rp_minimal_dart_frog](https://github.com/alvaroecp/rp_minimal_dart_frog). Whether this is a quirk of the mock identity system or of eSignet was not verified |
 | `sub` | The same value came back on every login of the same person with the same client. The discovery document says `pairwise`; whether it differs between clients was not compared |
 | `picture` | In the tests it arrived as an inline image (`data:image/jpeg;base64,…`), not as a URL |
 | Registered clients | No way to delete them was found |
@@ -301,7 +308,7 @@ Running it leaves a client registered, and apparently it cannot be deleted (see 
 
 Notes:
 
-- To use it with the RP linked in the Overview, change `redirectUris` to `["http://localhost:3005/callback"]` and `clientId` to the value you will use as `CLIENT_ID` in the RP's configuration.
+- To use it with the RPs linked in the Overview, change `redirectUris` to `["http://localhost:3005/callback"]` and `clientId` to the value you will use as `CLIENT_ID` in the RP's configuration.
 - Only the public key was sent. Its `kid` appears to be the one the RP has to put in the header of its client assertion: without a `kid`, eSignet answered `401 invalid_client`.
 - When a private key was lost, the client became unusable and no way to recover it was found. The way out was to register another client with a different name.
 - The Postman collection also has operations to read (`GET`), replace (`PUT`) and modify (`PATCH`) a client by its `client_id`. They were not tried. Apparently there is no way to delete or list clients: no such operation appears in the collection, and none was found in the tests.
