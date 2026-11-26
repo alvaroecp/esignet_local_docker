@@ -151,7 +151,7 @@ eSignet publishes its metadata at `http://localhost:8080/.well-known/openid-conf
 | Introspection | `http://localhost:8080/oauth2/introspect` |
 | Pushed authorization requests (PAR) | `http://localhost:8080/oauth2/par` |
 
-Other endpoints used in this setup: `GET http://localhost:8080/health`, `GET http://localhost:8082/v1/mock-identity-system/actuator/health`, `POST http://localhost:8080/client-mgmt/client` (client registration) and `POST http://localhost:8082/v1/mock-identity-system/identity` (people). The last two are described in the sections below.
+Other endpoints used in this setup: `GET http://localhost:8080/health`, `GET http://localhost:8082/v1/mock-identity-system/actuator/health`, `POST http://localhost:8080/client-mgmt/client` (client registration) and `POST http://localhost:8082/v1/mock-identity-system/identity` (user registration). The last two are described in the sections below.
 
 What the discovery document announces:
 
